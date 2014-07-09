@@ -4,45 +4,51 @@ define(function(require, exports, module) {
     var Modifier   = require('famous/core/Modifier');
     var Transform  = require('famous/core/Transform');
     var ImageSurface = require('famous/surfaces/ImageSurface');
-    var RenderNode = require('famous/core/RenderNode');
+    var RenderController = require('famous/views/RenderController');
 
     var mainContext = Engine.createContext();
-
-    var modifier = new Modifier({
-        origin: [0.5, 0.5],
-        align: [0.5, 0.5],
-        size: [window.innerWidth, window.innerHeight]
-    });
-
-    var slide = new Surface({
-        size: [undefined, undefined],
-        content: "Make a Presentation Using Famo.us",
-        classes: ['double-sided'],
-        properties: {
-            fontSize: window.innerWidth/15 + 'px',
-            lineHeight: window.innerWidth/10 + 'px',
-            textAlign: 'center'
-        },
-    });
-    var logo = new ImageSurface({
-        size: [200, 200],
-        content: 'http://code.famo.us/assets/famous_logo.svg',
-        classes: ['double-sided']
-    });
+    var renderController = new RenderController();
+    var slides = [];
+    var counter = 0;
 
     var text = [
-        "Each slide is a surface",
-        "Set new content on <br/> Engine click event",
-        "And it's not just text!",
-        "",
+        "<br/><br/> Make a Presentation Using Famo.us",
+        "<br/><br/> So I met Dave Fetterman today...",
+        "<br/><br/> He thought it'd be a cool idea to <br/> create a powerpoint-esque presentation...",
+        "<br/><br/> ...entirely in Famo.us",
+        "<br/><br/> Each slide is a surface",
+        "<br/><br/> And click events switch to a new surface",
+        "<br/><br/> Animations can also be added",
+        "<br/><br/> Like this",
+        "<br/><br/> And this",
+        "<br/><br/> And also this"
     ];
 
-    var next = 0;
+    var slideModifier = new Modifier({
+        origin: [0.5, 0.5],
+        align: [0.5, 0.5]
+    });
+
+    for(var i = 0; i < text.length; i++) {
+        slides.push(new Surface({
+            size: [undefined, undefined],
+            content: text[i],
+            classes: ['double-sided'],
+            properties: {
+                fontSize: '80px',
+                lineHeight: '100px',
+                textAlign: 'center'
+            }
+        }));
+    }
+
+    renderController.show(slides[0]);
 
     Engine.on('click', function() {
-        slide.setContent(slide.getContent() + '<br/>' + text[next]);
-        next++;
-    })
+        var next = (counter++ +1) % slides.length;
+        this.show(slides[next]);
+    }.bind(renderController));
 
-    mainContext.add(modifier).add(slide);
+   
+    mainContext.add(slideModifier).add(renderController);
 });
